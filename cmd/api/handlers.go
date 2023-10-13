@@ -1,7 +1,6 @@
 package main
 
 import (
-	"backend/internal/models"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -30,5 +29,5 @@ func (app *application) Home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) AllMovies(w http.ResponseWriter, r *http.Request) {
-	
+
 }
