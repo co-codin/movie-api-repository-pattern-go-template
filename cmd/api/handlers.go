@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 )
 
 func (app *application) Home(w http.ResponseWriter, r *http.Request) {
@@ -56,4 +57,18 @@ func (app *application) authenticate(w http.ResponseWriter, r *http.Request) {
 	log.Println(tokens.Token)
 
 	w.Write([]byte(tokens.Token))
+}
+
+func (j *Auth) GetRefreshCookie(refreshToken string) *http.Cookie {
+	return &http.Cookie{
+		Name: j.CookieName,
+		Path: j.CookiePath,
+		Value: refreshToken,
+		Expires: time.Now().Add(j.RefreshExpiry),
+		MaxAge: int(j.RefreshExpiry.Seconds()),
+		SameSite: http.SameSiteStrictMode,
+		Domain: j.CookieDomain,
+		HttpOnly: true,
+		Secure: true,
+	}
 }
