@@ -139,3 +139,7 @@ func (app *application) logout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, app.auth.GetExpiredRefreshCookie())
 	w.WriteHeader(http.StatusOK)
 }
+
+func (app *application) MovieCatalog(w http.ResponseWriter, r *http.Request) {
+	
+}
