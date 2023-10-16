@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -51,6 +52,13 @@ func (app *application) authenticate(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		app.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	user, err := app.DB.GetUserByEmail(payload.Email)
+
+	if err != nil {
+		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
 		return
 	}
 
