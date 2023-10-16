@@ -31,14 +31,10 @@ func (app *application) Home(w http.ResponseWriter, r *http.Request) {
 func (app *application) AllMovies(w http.ResponseWriter, r *http.Request) {
 	movies, err := app.DB.AllMovies()
 
-	out, err := json.Marshal(movies)
-
 	if err != nil {
-		fmt.Println(err)
+		app.errorJSON(w, err)
+		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(out)
-
+	_ = app.writeJSON(w, http.StatusOK, movies)
 }
