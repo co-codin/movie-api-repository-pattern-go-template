@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 )
@@ -44,7 +43,7 @@ func (app *application) AllMovies(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) authenticate(w http.ResponseWriter, r *http.Request) {
 	var payload struct {
-		Email string `json:"email"`
+		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
 
@@ -62,11 +61,16 @@ func (app *application) authenticate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	valid, err := user.PasswordMatches(payload.Password)
+	if err != nil || !valid {
+		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
+		return
+	}
 
 	u := jwtUser{
-		ID:        1,
-		FirstName: "Admin",
-		LastName:  "User",
+		ID:        user.ID,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
 	}
 
 	tokens, err := app.auth.GenerateTokenPair(&u)
@@ -75,39 +79,37 @@ func (app *application) authenticate(w http.ResponseWriter, r *http.Request) {
 		app.errorJSON(w, err)
 		return
 	}
-	log.Println(tokens.Token)
+
 	refreshCookie := app.auth.GetRefreshCookie(tokens.RefreshToken)
 	http.SetCookie(w, refreshCookie)
 
-
-	w.Write([]byte(tokens.Token))
+	app.writeJSON(w, http.StatusOK, tokens)
 }
 
 func (j *Auth) GetRefreshCookie(refreshToken string) *http.Cookie {
 	return &http.Cookie{
-		Name: j.CookieName,
-		Path: j.CookiePath,
-		Value: refreshToken,
-		Expires: time.Now().Add(j.RefreshExpiry),
-		MaxAge: int(j.RefreshExpiry.Seconds()),
+		Name:     j.CookieName,
+		Path:     j.CookiePath,
+		Value:    refreshToken,
+		Expires:  time.Now().Add(j.RefreshExpiry),
+		MaxAge:   int(j.RefreshExpiry.Seconds()),
 		SameSite: http.SameSiteStrictMode,
-		Domain: j.CookieDomain,
+		Domain:   j.CookieDomain,
 		HttpOnly: true,
-		Secure: true,
+		Secure:   true,
 	}
 }
 
 func (j *Auth) GetExpiredRefreshCookie() *http.Cookie {
 	return &http.Cookie{
-		Name: j.CookieName,
-		Path: j.CookiePath,
-		Value: "",
-		Expires: time.Unix(0, 0),
-		MaxAge: -1,
+		Name:     j.CookieName,
+		Path:     j.CookiePath,
+		Value:    "",
+		Expires:  time.Unix(0, 0),
+		MaxAge:   -1,
 		SameSite: http.SameSiteStrictMode,
-		Domain: j.CookieDomain,
+		Domain:   j.CookieDomain,
 		HttpOnly: true,
-		Secure: true,
+		Secure:   true,
 	}
 }
-
