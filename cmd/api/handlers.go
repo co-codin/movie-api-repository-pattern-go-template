@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"time"
 )
 
 func (app *application) Home(w http.ResponseWriter, r *http.Request) {
@@ -86,30 +85,6 @@ func (app *application) authenticate(w http.ResponseWriter, r *http.Request) {
 	app.writeJSON(w, http.StatusOK, tokens)
 }
 
-func (j *Auth) GetRefreshCookie(refreshToken string) *http.Cookie {
-	return &http.Cookie{
-		Name:     j.CookieName,
-		Path:     j.CookiePath,
-		Value:    refreshToken,
-		Expires:  time.Now().Add(j.RefreshExpiry),
-		MaxAge:   int(j.RefreshExpiry.Seconds()),
-		SameSite: http.SameSiteStrictMode,
-		Domain:   j.CookieDomain,
-		HttpOnly: true,
-		Secure:   true,
-	}
-}
-
-func (j *Auth) GetExpiredRefreshCookie() *http.Cookie {
-	return &http.Cookie{
-		Name:     j.CookieName,
-		Path:     j.CookiePath,
-		Value:    "",
-		Expires:  time.Unix(0, 0),
-		MaxAge:   -1,
-		SameSite: http.SameSiteStrictMode,
-		Domain:   j.CookieDomain,
-		HttpOnly: true,
-		Secure:   true,
-	}
+func (app *application) refreshToken(w http.ResponseWriter, r *http.Request) {
+	
 }
