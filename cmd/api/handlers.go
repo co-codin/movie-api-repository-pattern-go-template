@@ -208,3 +208,23 @@ func (app *application) AllGenres(w http.ResponseWriter, r *http.Request) {
 
 	_ = app.writeJSON(w, http.StatusOK, genres)
 }
+
+func (app *application) InsertMovie(w http.ResponseWriter, r *http.Request) {
+	var movie models.Movie
+
+	err := app.readJSON(w, r, &movie)
+
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	_, err = app.DB.InsertMovie(movie)
+
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	_ = app.writeJSON(w, http.StatusAccepted, movie)
+}
